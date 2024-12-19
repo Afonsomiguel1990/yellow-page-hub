@@ -8,6 +8,7 @@ import { PremiumDialog } from "./PremiumDialog";
 import { useQuery } from "@tanstack/react-query";
 import { BasicFields } from "./BasicFields";
 import { PremiumFields } from "./PremiumFields";
+import { ArrowLeft } from "lucide-react";
 
 type FormData = {
   name: string;
@@ -20,7 +21,13 @@ type FormData = {
   containerColor?: string;
 };
 
-export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
+export const AddBusinessForm = ({ 
+  categories = [],
+  onCancel
+}: { 
+  categories: any[];
+  onCancel: () => void;
+}) => {
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
   const [isPremium, setIsPremium] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
@@ -69,6 +76,7 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
         title: "Sucesso!",
         description: "Contacto adicionado com sucesso.",
       });
+      onCancel();
     } catch (error) {
       console.error('Error adding business:', error);
       toast({
@@ -95,6 +103,15 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
+      <Button
+        variant="ghost"
+        onClick={onCancel}
+        className="mb-6"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Voltar
+      </Button>
+
       <h1 className="text-2xl font-bold mb-6">Adicionar Novo Contacto</h1>
       <p className="text-gray-600 mb-8">
         Adicione um novo profissional ou empresa à lista.
