@@ -1,237 +1,194 @@
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Switch } from "@/components/ui/switch";
 
-const formSchema = z.object({
-  name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
-  phone: z.string().min(9, "Telefone deve ter 9 dígitos"),
-  category: z.string().min(1, "Selecione uma categoria"),
-  url: z.string().refine((val) => {
-    if (!val) return true; // Allow empty strings
-    // Only validate if there's a value
-    try {
-      new URL(val.startsWith('http') ? val : `https://${val}`);
-      return true;
-    } catch {
-      return false;
-    }
-  }, "URL inválido").optional().or(z.literal("")),
-  isPremium: z.boolean().default(false),
-  bio: z.string().max(200, "A bio não pode ter mais de 200 caracteres").optional(),
-  containerColor: z.string().optional(),
-  logoUrl: z.string().optional(),
-});
-
-type Category = {
-  id: string;
+type FormData = {
   name: string;
+  phone: string;
+  url?: string;
+  category: string;
+  secondaryCategory?: string;
+  bio?: string;
+  logoUrl?: string;
+  containerColor?: string;
 };
 
-type AddBusinessFormProps = {
-  categories: Category[];
-};
-
-export const AddBusinessForm = ({ categories }: AddBusinessFormProps) => {
+export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
+  const [isPremium, setIsPremium] = useState(false);
   const { toast } = useToast();
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      phone: "",
-      category: "",
-      url: "",
-      isPremium: false,
-      bio: "",
-      containerColor: "",
-      logoUrl: "",
-    },
-  });
+  const premiumFieldsRef = useRef<HTMLDivElement>(null);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  useEffect(() => {
+    if (isPremium && premiumFieldsRef.current) {
+      setTimeout(() => {
+        premiumFieldsRef.current?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 100);
+    }
+  }, [isPremium]);
+
+  const onSubmit = async (data: FormData) => {
     try {
-      // Add https:// to URL if it doesn't start with http:// or https://
-      const formattedUrl = values.url
-        ? values.url.startsWith('http') 
-          ? values.url 
-          : `https://${values.url}`
-        : null;
-
       const { error } = await supabase
         .from('businesses')
         .insert([
           {
-            name: values.name,
-            phone: values.phone,
-            category: values.category,
-            url: formattedUrl,
-            is_premium: values.isPremium,
-            bio: values.isPremium ? values.bio : null,
-            container_color: values.isPremium ? values.containerColor : null,
-            logo_url: values.isPremium ? values.logoUrl : null,
-          },
+            name: data.name,
+            phone: data.phone,
+            url: data.url && (data.url.startsWith('http://') || data.url.startsWith('https://')) 
+              ? data.url 
+              : data.url 
+                ? `https://${data.url}`
+                : null,
+            category: data.category,
+            secondary_category: data.secondaryCategory || null,
+            is_premium: isPremium,
+            bio: isPremium ? data.bio : null,
+            logo_url: isPremium ? data.logoUrl : null,
+            container_color: isPremium ? data.containerColor : null,
+          }
         ]);
 
       if (error) throw error;
 
       toast({
-        title: "Contacto adicionado com sucesso!",
-        description: "O novo contacto foi salvo na base de dados.",
+        title: "Sucesso!",
+        description: "Contacto adicionado com sucesso.",
       });
-
-      form.reset();
     } catch (error) {
-      console.error('Error inserting contact:', error);
+      console.error('Error adding business:', error);
       toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao adicionar o contacto.",
         variant: "destructive",
-        title: "Erro ao adicionar contacto",
-        description: "Ocorreu um erro ao salvar o contacto. Por favor, tente novamente.",
       });
     }
   };
 
-  const watchIsPremium = form.watch("isPremium");
-
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nome da Empresa/Profissional</FormLabel>
-              <FormControl>
-                <Input placeholder="Nome" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-6">
+      <div className="space-y-4">
+        <div>
+          <Label htmlFor="name">Nome *</Label>
+          <Input
+            id="name"
+            {...register("name", { required: true })}
+            className={errors.name ? "border-red-500" : ""}
+          />
+          {errors.name && (
+            <span className="text-red-500 text-sm">Este campo é obrigatório</span>
           )}
-        />
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Telefone</FormLabel>
-              <FormControl>
-                <Input placeholder="912345678" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="category"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Categoria</FormLabel>
-              <FormControl>
-                <select 
-                  {...field}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <option value="">Selecione uma categoria</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.name}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="url"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Website ou Rede Social (opcional)</FormLabel>
-              <FormControl>
-                <Input placeholder="exemplo.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        </div>
 
-        <FormField
-          control={form.control}
-          name="isPremium"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Perfil Premium</FormLabel>
-                <div className="text-sm text-muted-foreground">
-                  Ative para ter acesso a recursos premium como logotipo, bio e mais destaque.
-                </div>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
+        <div>
+          <Label htmlFor="phone">Telefone *</Label>
+          <Input
+            id="phone"
+            {...register("phone", { required: true })}
+            className={errors.phone ? "border-red-500" : ""}
+          />
+          {errors.phone && (
+            <span className="text-red-500 text-sm">Este campo é obrigatório</span>
           )}
-        />
+        </div>
 
-        {watchIsPremium && (
-          <>
-            <FormField
-              control={form.control}
-              name="bio"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Bio (até 200 caracteres)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Descreva seu negócio..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="containerColor"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Cor do Container</FormLabel>
-                  <FormControl>
-                    <Input type="color" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="logoUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL do Logotipo</FormLabel>
-                  <FormControl>
-                    <Input placeholder="URL da imagem do logotipo" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        )}
+        <div>
+          <Label htmlFor="url">Website</Label>
+          <Input id="url" {...register("url")} />
+        </div>
 
-        <Button type="submit" className="w-full">
-          Adicionar Contacto
-        </Button>
-      </form>
-    </Form>
+        <div>
+          <Label htmlFor="category">Categoria Principal *</Label>
+          <select
+            id="category"
+            {...register("category", { required: true })}
+            className={`w-full border rounded-md p-2 ${
+              errors.category ? "border-red-500" : "border-gray-300"
+            }`}
+          >
+            <option value="">Selecione uma categoria</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.name}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+          {errors.category && (
+            <span className="text-red-500 text-sm">Este campo é obrigatório</span>
+          )}
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="premium"
+            checked={isPremium}
+            onCheckedChange={setIsPremium}
+          />
+          <Label htmlFor="premium">Ativar Premium</Label>
+        </div>
+      </div>
+
+      {isPremium && (
+        <div ref={premiumFieldsRef} className="space-y-4 pt-4 border-t">
+          <div>
+            <Label htmlFor="secondaryCategory">Categoria Secundária</Label>
+            <select
+              id="secondaryCategory"
+              {...register("secondaryCategory")}
+              className="w-full border rounded-md p-2 border-gray-300"
+            >
+              <option value="">Selecione uma categoria</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.name}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <Label htmlFor="bio">Bio (até 200 caracteres)</Label>
+            <Textarea
+              id="bio"
+              {...register("bio")}
+              maxLength={200}
+              placeholder="Descreva o seu negócio..."
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="logoUrl">URL do Logotipo</Label>
+            <Input
+              id="logoUrl"
+              {...register("logoUrl")}
+              placeholder="https://exemplo.com/logo.png"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="containerColor">Cor do Container</Label>
+            <Input
+              id="containerColor"
+              type="color"
+              {...register("containerColor")}
+              className="h-10"
+            />
+          </div>
+        </div>
+      )}
+
+      <Button type="submit" className="w-full">
+        Adicionar Contacto
+      </Button>
+    </form>
   );
 };
