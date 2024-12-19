@@ -1,13 +1,15 @@
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BusinessCard } from "@/components/BusinessCard";
 import { AddBusinessForm } from "@/components/AddBusinessForm";
 import { Hero } from "@/components/Hero";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 const Index = () => {
+  const [showAddForm, setShowAddForm] = useState(false);
+
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
@@ -16,7 +18,6 @@ const Index = () => {
         .select('*')
         .order('name');
       if (error) throw error;
-      // Randomizar a ordem das categorias
       return data.sort(() => Math.random() - 0.5);
     },
   });
@@ -41,6 +42,10 @@ const Index = () => {
     )
   })).filter(group => group.businesses.length > 0);
 
+  if (showAddForm) {
+    return <AddBusinessForm categories={categories} />;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Hero />
@@ -49,7 +54,7 @@ const Index = () => {
       <div className="max-w-4xl mx-auto px-4 py-8 mt-4">
         {groupedBusinesses.map((group) => (
           <div key={group.category} className="mb-8">
-            <h2 className="text-xl font-semibold mb-4 text-yellow-800 bg-background py-2">
+            <h2 className="text-xl font-bold mb-4 text-yellow-800 bg-background py-2">
               {group.category}
             </h2>
             <div className="space-y-3">
@@ -72,26 +77,14 @@ const Index = () => {
       </div>
 
       {/* Add Contact Button */}
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button 
-            className="fixed bottom-4 right-4 shadow-lg z-50"
-            size="lg"
-          >
-            <Plus className="mr-2" />
-            Adicionar Contacto
-          </Button>
-        </SheetTrigger>
-        <SheetContent className="overflow-y-auto max-h-screen pt-8">
-          <SheetHeader>
-            <SheetTitle>Adicionar Novo Contacto</SheetTitle>
-            <SheetDescription>
-              Adicione um novo profissional ou empresa à lista.
-            </SheetDescription>
-          </SheetHeader>
-          <AddBusinessForm categories={categories} />
-        </SheetContent>
-      </Sheet>
+      <Button 
+        className="fixed bottom-4 right-4 shadow-lg z-50"
+        size="lg"
+        onClick={() => setShowAddForm(true)}
+      >
+        <Plus className="mr-2" />
+        Adicionar Contacto
+      </Button>
     </div>
   );
 };

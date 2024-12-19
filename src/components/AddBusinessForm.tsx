@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -34,13 +34,6 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
       return session;
     },
   });
-
-  // Mostrar diálogo de autenticação se o usuário não estiver logado
-  useEffect(() => {
-    if (!session?.user) {
-      setShowAuthDialog(true);
-    }
-  }, [session]);
 
   const onSubmit = async (data: FormData) => {
     if (!session?.user) {
@@ -100,19 +93,14 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
     setIsPremium(checked);
   };
 
-  // Se o usuário não estiver autenticado, mostrar apenas o diálogo de autenticação
-  if (!session?.user) {
-    return (
-      <AuthDialog 
-        open={showAuthDialog} 
-        onOpenChange={setShowAuthDialog} 
-      />
-    );
-  }
-
   return (
-    <>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-6">
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Adicionar Novo Contacto</h1>
+      <p className="text-gray-600 mb-8">
+        Adicione um novo profissional ou empresa à lista.
+      </p>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <BasicFields
           register={register}
           errors={errors}
@@ -143,6 +131,6 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
         onOpenChange={setShowPremiumDialog}
         onSuccess={() => setIsPremium(true)}
       />
-    </>
+    </div>
   );
 };
