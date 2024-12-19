@@ -7,10 +7,8 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { PremiumPlans } from "./PremiumPlans";
+import { AuthDialog } from "./AuthDialog";
+import { PremiumDialog } from "./PremiumDialog";
 
 type FormData = {
   name: string;
@@ -242,33 +240,15 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
         </Button>
       </form>
 
-      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Criar conta para ativar Premium</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <Auth
-              supabaseClient={supabase}
-              appearance={{ theme: ThemeSupa }}
-              theme="light"
-              providers={[]}
-              redirectTo={window.location.origin}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AuthDialog 
+        open={showAuthDialog} 
+        onOpenChange={setShowAuthDialog} 
+      />
 
-      <Dialog open={showPremiumDialog} onOpenChange={setShowPremiumDialog}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Escolha seu plano Premium</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <PremiumPlans onClose={() => setShowPremiumDialog(false)} />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <PremiumDialog 
+        open={showPremiumDialog} 
+        onOpenChange={setShowPremiumDialog} 
+      />
     </>
   );
 };
