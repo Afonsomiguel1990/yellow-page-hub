@@ -7,8 +7,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, LogIn, UserPlus, User } from "lucide-react";
 import { AuthDialog } from "@/components/AuthDialog";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
 
@@ -16,7 +18,7 @@ const Index = () => {
     queryKey: ['session'],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      console.log("Current session:", session); // Debug log
+      console.log("Current session:", session);
       return session;
     },
   });
@@ -58,7 +60,7 @@ const Index = () => {
   })).filter(group => group.businesses.length > 0);
 
   if (showAddForm) {
-    return <AddBusinessForm categories={categories} />;
+    return <AddBusinessForm onCancel={() => setShowAddForm(false)} />;
   }
 
   return (
@@ -119,7 +121,7 @@ const Index = () => {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={handleSignOut}
+              onClick={() => navigate('/profile')}
               className="text-xs sm:text-sm"
             >
               <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
