@@ -53,7 +53,10 @@ const Index = () => {
   })).filter(group => group.businesses.length > 0);
 
   if (showAddForm) {
-    return <AddBusinessForm categories={categories} />;
+    return <AddBusinessForm 
+      categories={categories} 
+      onCancel={() => setShowAddForm(false)}
+    />;
   }
 
   return (
