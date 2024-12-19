@@ -35,6 +35,13 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
     },
   });
 
+  // Mostrar diálogo de autenticação se o usuário não estiver logado
+  useEffect(() => {
+    if (!session?.user) {
+      setShowAuthDialog(true);
+    }
+  }, [session]);
+
   const onSubmit = async (data: FormData) => {
     if (!session?.user) {
       setShowAuthDialog(true);
@@ -92,6 +99,16 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
 
     setIsPremium(checked);
   };
+
+  // Se o usuário não estiver autenticado, mostrar apenas o diálogo de autenticação
+  if (!session?.user) {
+    return (
+      <AuthDialog 
+        open={showAuthDialog} 
+        onOpenChange={setShowAuthDialog} 
+      />
+    );
+  }
 
   return (
     <>
