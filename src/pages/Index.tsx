@@ -12,10 +12,11 @@ const Index = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
 
-  const { data: session } = useQuery({
+  const { data: session, isLoading: isSessionLoading } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      console.log("Current session:", session); // Debug log
       return session;
     },
   });
