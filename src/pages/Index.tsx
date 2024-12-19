@@ -8,6 +8,13 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/components/ui/use-toast";
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  'https://xyzcompanyid.supabase.co',
+  'your-anon-key'
+);
 
 const formSchema = z.object({
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
@@ -17,6 +24,7 @@ const formSchema = z.object({
 });
 
 const Index = () => {
+  const { toast } = useToast();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -27,9 +35,35 @@ const Index = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-    // Aqui iremos adicionar a lógica para salvar no Supabase
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const { error } = await supabase
+        .from('businesses')
+        .insert([
+          {
+            name: values.name,
+            phone: values.phone,
+            category: values.category,
+            url: values.url || null,
+          },
+        ]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Contacto adicionado com sucesso!",
+        description: "O novo contacto foi salvo na base de dados.",
+      });
+
+      form.reset();
+    } catch (error) {
+      console.error('Error inserting contact:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao adicionar contacto",
+        description: "Ocorreu um erro ao salvar o contacto. Por favor, tente novamente.",
+      });
+    }
   };
 
   const groupedBusinesses = categories.map(category => ({
