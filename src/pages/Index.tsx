@@ -102,7 +102,7 @@ const Index = () => {
                 className="text-xs sm:text-sm"
               >
                 <LogIn className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                Iniciar Sessão
+                Entrar
               </Button>
               <Button 
                 variant="outline" 
@@ -111,7 +111,7 @@ const Index = () => {
                 className="text-xs sm:text-sm"
               >
                 <UserPlus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                Criar Conta
+                Registar
               </Button>
             </>
           ) : (
