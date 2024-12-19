@@ -25,75 +25,24 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
   const [isPremium, setIsPremium] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
-  const [createdBusinessId, setCreatedBusinessId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const { data: profile } = useQuery({
-    queryKey: ['profile'],
+  const { data: session } = useQuery({
+    queryKey: ['session'],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) return null;
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
-
-      return profile;
+      return session;
     },
   });
 
-  useEffect(() => {
-    if (!profile?.is_premium) {
-      setIsPremium(false);
-    }
-  }, [profile]);
-
-  useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && createdBusinessId && session?.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({ business_id: createdBusinessId })
-          .eq('id', session.user.id);
-
-        if (profileError) {
-          console.error('Error updating profile:', profileError);
-          return;
-        }
-
-        setShowAuthDialog(false);
-        toast({
-          title: "Conta criada com sucesso!",
-          description: "Agora você pode acessar os recursos premium.",
-        });
-      }
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, [createdBusinessId, toast]);
-
-  const handlePremiumToggle = async (checked: boolean) => {
-    const session = await supabase.auth.getSession();
-    if (checked && !session.data.session) {
+  const onSubmit = async (data: FormData) => {
+    if (!session?.user) {
       setShowAuthDialog(true);
       return;
     }
 
-    if (!profile?.is_premium) {
-      setShowPremiumDialog(true);
-      return;
-    }
-
-    setIsPremium(checked);
-  };
-
-  const onSubmit = async (data: FormData) => {
     try {
-      const { data: businessData, error } = await supabase
+      const { error } = await supabase
         .from('businesses')
         .insert([
           {
@@ -110,15 +59,11 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
             bio: isPremium ? data.bio : null,
             logo_url: isPremium ? data.logoUrl : null,
             container_color: isPremium ? data.containerColor : null,
+            user_id: session.user.id
           }
-        ])
-        .select();
+        ]);
 
       if (error) throw error;
-
-      if (businessData && businessData[0]) {
-        setCreatedBusinessId(businessData[0].id);
-      }
 
       toast({
         title: "Sucesso!",
@@ -134,6 +79,20 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
     }
   };
 
+  const handlePremiumToggle = (checked: boolean) => {
+    if (!session?.user) {
+      setShowAuthDialog(true);
+      return;
+    }
+
+    if (checked) {
+      setShowPremiumDialog(true);
+      return;
+    }
+
+    setIsPremium(checked);
+  };
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-6">
@@ -145,7 +104,7 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
           onPremiumToggle={handlePremiumToggle}
         />
 
-        {isPremium && profile?.is_premium && (
+        {isPremium && (
           <PremiumFields
             register={register}
             categories={categories}
@@ -164,7 +123,8 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
 
       <PremiumDialog 
         open={showPremiumDialog} 
-        onOpenChange={setShowPremiumDialog} 
+        onOpenChange={setShowPremiumDialog}
+        onSuccess={() => setIsPremium(true)}
       />
     </>
   );

@@ -13,7 +13,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Criar conta para ativar Premium</DialogTitle>
+          <DialogTitle>Criar conta para adicionar contacto</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <Auth

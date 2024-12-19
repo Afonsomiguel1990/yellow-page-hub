@@ -22,6 +22,7 @@ export type Database = {
           phone: string
           secondary_category: string | null
           url: string | null
+          user_id: string | null
         }
         Insert: {
           bio?: string | null
@@ -35,6 +36,7 @@ export type Database = {
           phone: string
           secondary_category?: string | null
           url?: string | null
+          user_id?: string | null
         }
         Update: {
           bio?: string | null
@@ -48,6 +50,7 @@ export type Database = {
           phone?: string
           secondary_category?: string | null
           url?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -89,19 +92,16 @@ export type Database = {
           business_id: string | null
           created_at: string
           id: string
-          is_premium: boolean | null
         }
         Insert: {
           business_id?: string | null
           created_at?: string
           id: string
-          is_premium?: boolean | null
         }
         Update: {
           business_id?: string | null
           created_at?: string
           id?: string
-          is_premium?: boolean | null
         }
         Relationships: [
           {
