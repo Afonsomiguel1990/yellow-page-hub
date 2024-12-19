@@ -89,16 +89,19 @@ export type Database = {
           business_id: string | null
           created_at: string
           id: string
+          is_premium: boolean | null
         }
         Insert: {
           business_id?: string | null
           created_at?: string
           id: string
+          is_premium?: boolean | null
         }
         Update: {
           business_id?: string | null
           created_at?: string
           id?: string
+          is_premium?: boolean | null
         }
         Relationships: [
           {
