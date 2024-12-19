@@ -2,6 +2,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface AuthDialogProps {
   open: boolean;
@@ -9,6 +11,22 @@ interface AuthDialogProps {
 }
 
 export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
+        toast({
+          title: "Login bem-sucedido",
+          description: "Bem-vindo de volta!",
+        });
+        onOpenChange(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [onOpenChange, toast]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
@@ -27,10 +45,10 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
                 sign_up: {
                   email_label: "Email",
                   password_label: "Palavra-passe",
-                  button_label: "Criar conta",
+                  button_label: "Registar",
                   loading_button_label: "A criar conta...",
                   social_provider_text: "Entrar com {{provider}}",
-                  link_text: "Não tem conta? Criar conta",
+                  link_text: "Não tem conta? Registar",
                 },
                 sign_in: {
                   email_label: "Email",
