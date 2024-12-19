@@ -91,26 +91,26 @@ const Index = () => {
       </div>
 
       {/* Bottom Navigation Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 flex justify-between items-center z-50">
-        <div className="flex gap-2">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-3 py-2 flex justify-between items-center z-50 md:px-4 md:py-3">
+        <div className="flex gap-1 sm:gap-2">
           {!session ? (
             <>
               <Button 
                 variant="outline" 
                 size="sm"
                 onClick={() => setShowAuthDialog(true)}
-                className="flex items-center gap-2"
+                className="text-xs sm:text-sm"
               >
-                <LogIn className="w-4 h-4" />
+                <LogIn className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 Iniciar Sessão
               </Button>
               <Button 
                 variant="outline" 
                 size="sm"
                 onClick={() => setShowAuthDialog(true)}
-                className="flex items-center gap-2"
+                className="text-xs sm:text-sm"
               >
-                <UserPlus className="w-4 h-4" />
+                <UserPlus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 Criar Conta
               </Button>
             </>
@@ -119,9 +119,9 @@ const Index = () => {
               variant="outline" 
               size="sm"
               onClick={handleSignOut}
-              className="flex items-center gap-2"
+              className="text-xs sm:text-sm"
             >
-              <User className="w-4 h-4" />
+              <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               Perfil
             </Button>
           )}
@@ -129,9 +129,9 @@ const Index = () => {
         <Button 
           size="sm"
           onClick={() => session ? setShowAddForm(true) : setShowAuthDialog(true)}
-          className="flex items-center gap-2"
+          className="text-xs sm:text-sm"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
           Adicionar Contacto
         </Button>
       </div>
