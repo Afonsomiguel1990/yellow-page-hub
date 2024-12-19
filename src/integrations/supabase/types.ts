@@ -84,6 +84,32 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          id: string
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          id: string
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
