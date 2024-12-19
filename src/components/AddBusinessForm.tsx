@@ -20,7 +20,12 @@ type FormData = {
   containerColor?: string;
 };
 
-export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
+interface AddBusinessFormProps {
+  categories: any[];
+  onCancel?: () => void;
+}
+
+export const AddBusinessForm = ({ categories = [], onCancel }: AddBusinessFormProps) => {
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
   const [isPremium, setIsPremium] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
@@ -69,6 +74,8 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
         title: "Sucesso!",
         description: "Contacto adicionado com sucesso.",
       });
+      
+      onCancel?.();
     } catch (error) {
       console.error('Error adding business:', error);
       toast({
@@ -95,7 +102,15 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Adicionar Novo Contacto</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Adicionar Novo Contacto</h1>
+        {onCancel && (
+          <Button variant="outline" onClick={onCancel}>
+            Cancelar
+          </Button>
+        )}
+      </div>
+      
       <p className="text-gray-600 mb-8">
         Adicione um novo profissional ou empresa à lista.
       </p>
