@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { PhoneCall, Globe, ChevronDown, ChevronUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
 
 type BusinessCardProps = {
   id: string;
@@ -27,11 +24,19 @@ export const BusinessCard = ({
   containerColor
 }: BusinessCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { toast } = useToast();
 
   const cardStyle = {
     backgroundColor: containerColor || undefined,
     cursor: isPremium && bio ? 'pointer' : 'default'
+  };
+
+  const formatUrl = (url: string) => {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.hostname.replace('www.', '');
+    } catch {
+      return url;
+    }
   };
 
   return (
@@ -72,7 +77,7 @@ export const BusinessCard = ({
                       className="flex items-center text-gray-600 hover:text-gray-800"
                     >
                       <Globe className="h-4 w-4 mr-1" />
-                      Website
+                      {formatUrl(url)}
                     </a>
                   )}
                 </div>

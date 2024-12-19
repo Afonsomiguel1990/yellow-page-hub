@@ -16,7 +16,8 @@ const Index = () => {
         .select('*')
         .order('name');
       if (error) throw error;
-      return data;
+      // Randomizar a ordem das categorias
+      return data.sort(() => Math.random() - 0.5);
     },
   });
 
@@ -32,24 +33,6 @@ const Index = () => {
       return data;
     },
   });
-
-  const togglePremium = async (id: string, isPremium: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('businesses')
-        .update({ 
-          is_premium: !isPremium,
-          bio: !isPremium ? "Esta é uma bio de exemplo para testar o modo premium. Aqui pode escrever até 200 caracteres sobre o seu negócio." : null,
-          container_color: !isPremium ? "#f0f9ff" : null,
-          logo_url: !isPremium ? "https://picsum.photos/200" : null
-        })
-        .eq('id', id);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error toggling premium:', error);
-    }
-  };
 
   const groupedBusinesses = categories.map(category => ({
     category: category.name,
@@ -71,27 +54,17 @@ const Index = () => {
             </h2>
             <div className="space-y-3">
               {group.businesses.map((business) => (
-                <div key={business.id} className="space-y-2">
-                  <BusinessCard
-                    id={business.id}
-                    name={business.name}
-                    phone={business.phone}
-                    url={business.url}
-                    isPremium={business.is_premium}
-                    logoUrl={business.logo_url}
-                    bio={business.bio}
-                    containerColor={business.container_color}
-                  />
-                  {/* Temporary Premium Toggle Button */}
-                  <Button
-                    onClick={() => togglePremium(business.id, business.is_premium)}
-                    variant={business.is_premium ? "destructive" : "default"}
-                    size="sm"
-                    className="w-full"
-                  >
-                    {business.is_premium ? "Desativar Premium" : "Ativar Premium"}
-                  </Button>
-                </div>
+                <BusinessCard
+                  key={business.id}
+                  id={business.id}
+                  name={business.name}
+                  phone={business.phone}
+                  url={business.url}
+                  isPremium={business.is_premium}
+                  logoUrl={business.logo_url}
+                  bio={business.bio}
+                  containerColor={business.container_color}
+                />
               ))}
             </div>
           </div>
