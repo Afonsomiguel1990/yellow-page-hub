@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { PhoneCall, Globe, ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 type BusinessCardProps = {
+  id: string;
   name: string;
   phone: string;
   url?: string | null;
@@ -13,6 +17,7 @@ type BusinessCardProps = {
 };
 
 export const BusinessCard = ({ 
+  id,
   name, 
   phone, 
   url, 
@@ -22,10 +27,42 @@ export const BusinessCard = ({
   containerColor
 }: BusinessCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { toast } = useToast();
 
   const cardStyle = {
     backgroundColor: containerColor || undefined,
     cursor: isPremium && bio ? 'pointer' : 'default'
+  };
+
+  const togglePremium = async () => {
+    try {
+      const { error } = await supabase
+        .from('businesses')
+        .update({ 
+          is_premium: !isPremium,
+          // Add some sample premium data when enabling premium
+          bio: !isPremium ? "Esta é uma bio de exemplo para testar o modo premium. Aqui pode escrever até 200 caracteres sobre o seu negócio." : null,
+          container_color: !isPremium ? "#f0f9ff" : null,
+          logo_url: !isPremium ? "https://picsum.photos/200" : null
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: !isPremium ? "Modo Premium ativado!" : "Modo Premium desativado",
+        description: !isPremium 
+          ? "Agora pode ver como funciona o modo premium" 
+          : "Voltou ao modo normal",
+      });
+    } catch (error) {
+      console.error('Error toggling premium:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Não foi possível alterar o modo premium",
+      });
+    }
   };
 
   return (
@@ -104,6 +141,17 @@ export const BusinessCard = ({
             )}
           </div>
         </div>
+        {/* Temporary Premium Toggle Button */}
+        <Button 
+          onClick={(e) => {
+            e.stopPropagation();
+            togglePremium();
+          }}
+          variant={isPremium ? "destructive" : "default"}
+          className="mt-4 w-full"
+        >
+          {isPremium ? "Desativar Premium" : "Ativar Premium"}
+        </Button>
       </CardContent>
     </Card>
   );

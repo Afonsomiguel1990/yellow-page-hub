@@ -55,6 +55,7 @@ const Index = () => {
               {group.businesses.map((business) => (
                 <BusinessCard
                   key={business.id}
+                  id={business.id}
                   name={business.name}
                   phone={business.phone}
                   url={business.url}
