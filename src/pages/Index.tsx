@@ -109,7 +109,7 @@ const Index = () => {
             Adicionar Contacto
           </Button>
         </SheetTrigger>
-        <SheetContent>
+        <SheetContent className="overflow-y-auto max-h-screen pt-8">
           <SheetHeader>
             <SheetTitle>Adicionar Novo Contacto</SheetTitle>
             <SheetDescription>
