@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthDialog } from "./AuthDialog";
 import { PremiumDialog } from "./PremiumDialog";
+import { useQuery } from "@tanstack/react-query";
 
 type FormData = {
   name: string;
@@ -29,6 +30,30 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
   const [createdBusinessId, setCreatedBusinessId] = useState<string | null>(null);
   const { toast } = useToast();
   const premiumFieldsRef = useRef<HTMLDivElement>(null);
+
+  // Fetch user profile and subscription status
+  const { data: profile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return null;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      return profile;
+    },
+  });
+
+  // Reset premium state when profile changes
+  useEffect(() => {
+    if (!profile?.is_premium) {
+      setIsPremium(false);
+    }
+  }, [profile]);
 
   useEffect(() => {
     if (isPremium && premiumFieldsRef.current) {
@@ -73,9 +98,12 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
       setShowAuthDialog(true);
       return;
     }
-    if (checked) {
+
+    if (!profile?.is_premium) {
       setShowPremiumDialog(true);
+      return;
     }
+
     setIsPremium(checked);
   };
 
@@ -93,7 +121,7 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
                 ? `https://${data.url}`
                 : null,
             category: data.category,
-            secondary_category: data.secondaryCategory || null,
+            secondary_category: isPremium ? data.secondaryCategory : null,
             is_premium: isPremium,
             bio: isPremium ? data.bio : null,
             logo_url: isPremium ? data.logoUrl : null,
@@ -186,7 +214,7 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
           </div>
         </div>
 
-        {isPremium && (
+        {isPremium && profile?.is_premium && (
           <div ref={premiumFieldsRef} className="space-y-4 pt-4 border-t">
             <div>
               <Label htmlFor="secondaryCategory">Categoria Secundária</Label>
