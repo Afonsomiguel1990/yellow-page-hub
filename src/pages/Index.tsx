@@ -7,8 +7,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, LogIn, UserPlus, User } from "lucide-react";
 import { AuthDialog } from "@/components/AuthDialog";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
 
@@ -119,7 +121,7 @@ const Index = () => {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={handleSignOut}
+              onClick={() => navigate('/profile')}
               className="text-xs sm:text-sm"
             >
               <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
