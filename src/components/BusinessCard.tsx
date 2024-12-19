@@ -34,37 +34,6 @@ export const BusinessCard = ({
     cursor: isPremium && bio ? 'pointer' : 'default'
   };
 
-  const togglePremium = async () => {
-    try {
-      const { error } = await supabase
-        .from('businesses')
-        .update({ 
-          is_premium: !isPremium,
-          // Add some sample premium data when enabling premium
-          bio: !isPremium ? "Esta é uma bio de exemplo para testar o modo premium. Aqui pode escrever até 200 caracteres sobre o seu negócio." : null,
-          container_color: !isPremium ? "#f0f9ff" : null,
-          logo_url: !isPremium ? "https://picsum.photos/200" : null
-        })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      toast({
-        title: !isPremium ? "Modo Premium ativado!" : "Modo Premium desativado",
-        description: !isPremium 
-          ? "Agora pode ver como funciona o modo premium" 
-          : "Voltou ao modo normal",
-      });
-    } catch (error) {
-      console.error('Error toggling premium:', error);
-      toast({
-        variant: "destructive",
-        title: "Erro",
-        description: "Não foi possível alterar o modo premium",
-      });
-    }
-  };
-
   return (
     <Card 
       className={`transition-all duration-300 ${isPremium ? 'hover:shadow-lg' : 'hover:shadow-md'}`}
@@ -141,17 +110,6 @@ export const BusinessCard = ({
             )}
           </div>
         </div>
-        {/* Temporary Premium Toggle Button */}
-        <Button 
-          onClick={(e) => {
-            e.stopPropagation();
-            togglePremium();
-          }}
-          variant={isPremium ? "destructive" : "default"}
-          className="mt-4 w-full"
-        >
-          {isPremium ? "Desativar Premium" : "Ativar Premium"}
-        </Button>
       </CardContent>
     </Card>
   );

@@ -6,6 +6,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Switch } from "@/components/ui/switch";
 
 const formSchema = z.object({
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
@@ -21,6 +22,10 @@ const formSchema = z.object({
       return false;
     }
   }, "URL inválido").optional().or(z.literal("")),
+  isPremium: z.boolean().default(false),
+  bio: z.string().max(200, "A bio não pode ter mais de 200 caracteres").optional(),
+  containerColor: z.string().optional(),
+  logoUrl: z.string().optional(),
 });
 
 type Category = {
@@ -41,6 +46,10 @@ export const AddBusinessForm = ({ categories }: AddBusinessFormProps) => {
       phone: "",
       category: "",
       url: "",
+      isPremium: false,
+      bio: "",
+      containerColor: "",
+      logoUrl: "",
     },
   });
 
@@ -61,6 +70,10 @@ export const AddBusinessForm = ({ categories }: AddBusinessFormProps) => {
             phone: values.phone,
             category: values.category,
             url: formattedUrl,
+            is_premium: values.isPremium,
+            bio: values.isPremium ? values.bio : null,
+            container_color: values.isPremium ? values.containerColor : null,
+            logo_url: values.isPremium ? values.logoUrl : null,
           },
         ]);
 
@@ -81,6 +94,8 @@ export const AddBusinessForm = ({ categories }: AddBusinessFormProps) => {
       });
     }
   };
+
+  const watchIsPremium = form.watch("isPremium");
 
   return (
     <Form {...form}>
@@ -147,6 +162,72 @@ export const AddBusinessForm = ({ categories }: AddBusinessFormProps) => {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="isPremium"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base">Perfil Premium</FormLabel>
+                <div className="text-sm text-muted-foreground">
+                  Ative para ter acesso a recursos premium como logotipo, bio e mais destaque.
+                </div>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        {watchIsPremium && (
+          <>
+            <FormField
+              control={form.control}
+              name="bio"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bio (até 200 caracteres)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Descreva seu negócio..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="containerColor"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cor do Container</FormLabel>
+                  <FormControl>
+                    <Input type="color" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="logoUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URL do Logotipo</FormLabel>
+                  <FormControl>
+                    <Input placeholder="URL da imagem do logotipo" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
+
         <Button type="submit" className="w-full">
           Adicionar Contacto
         </Button>
