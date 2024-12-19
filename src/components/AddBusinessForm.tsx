@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PremiumPlans } from "./PremiumPlans";
 
 type FormData = {
   name: string;
@@ -26,6 +27,7 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
   const [isPremium, setIsPremium] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [createdBusinessId, setCreatedBusinessId] = useState<string | null>(null);
   const { toast } = useToast();
   const premiumFieldsRef = useRef<HTMLDivElement>(null);
@@ -44,7 +46,6 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && createdBusinessId && session?.user) {
-        // Update the profile with the business ID
         const { error: profileError } = await supabase
           .from('profiles')
           .update({ business_id: createdBusinessId })
@@ -73,6 +74,9 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
     if (checked && !session.data.session) {
       setShowAuthDialog(true);
       return;
+    }
+    if (checked) {
+      setShowPremiumDialog(true);
     }
     setIsPremium(checked);
   };
@@ -251,6 +255,17 @@ export const AddBusinessForm = ({ categories = [] }: { categories: any[] }) => {
               providers={[]}
               redirectTo={window.location.origin}
             />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showPremiumDialog} onOpenChange={setShowPremiumDialog}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Escolha seu plano Premium</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <PremiumPlans onClose={() => setShowPremiumDialog(false)} />
           </div>
         </DialogContent>
       </Dialog>
