@@ -119,7 +119,7 @@ const Index = () => {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={handleSignOut}
+              onClick={() => {}}
               className="text-xs sm:text-sm"
             >
               <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
