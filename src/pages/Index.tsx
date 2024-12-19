@@ -102,7 +102,7 @@ const Index = () => {
                 className="flex items-center gap-2"
               >
                 <LogIn className="w-4 h-4" />
-                Login
+                Iniciar Sessão
               </Button>
               <Button 
                 variant="outline" 
@@ -111,7 +111,7 @@ const Index = () => {
                 className="flex items-center gap-2"
               >
                 <UserPlus className="w-4 h-4" />
-                SignUp
+                Criar Conta
               </Button>
             </>
           ) : (

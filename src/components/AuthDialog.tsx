@@ -22,6 +22,26 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
             theme="light"
             providers={[]}
             redirectTo={window.location.origin}
+            localization={{
+              variables: {
+                sign_up: {
+                  email_label: "Email",
+                  password_label: "Palavra-passe",
+                  button_label: "Criar conta",
+                  loading_button_label: "A criar conta...",
+                  social_provider_text: "Entrar com {{provider}}",
+                  link_text: "Não tem conta? Criar conta",
+                },
+                sign_in: {
+                  email_label: "Email",
+                  password_label: "Palavra-passe",
+                  button_label: "Entrar",
+                  loading_button_label: "A entrar...",
+                  social_provider_text: "Entrar com {{provider}}",
+                  link_text: "Já tem conta? Entrar",
+                },
+              },
+            }}
           />
         </div>
       </DialogContent>
