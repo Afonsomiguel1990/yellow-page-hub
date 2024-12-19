@@ -17,7 +17,7 @@ const Index = () => {
             Páginas Amarelas Locais
           </h1>
           <p className="text-yellow-800 text-lg">
-            Encontre os melhores negócios e serviços da sua cidade
+            Encontre os melhores profissionais e serviços da sua cidade
           </p>
         </div>
       </div>
