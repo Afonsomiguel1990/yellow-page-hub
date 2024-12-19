@@ -11,7 +11,16 @@ const formSchema = z.object({
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
   phone: z.string().min(9, "Telefone deve ter 9 dígitos"),
   category: z.string().min(1, "Selecione uma categoria"),
-  url: z.string().url("URL inválido").optional().or(z.literal("")),
+  url: z.string().refine((val) => {
+    if (!val) return true; // Allow empty strings
+    // Only validate if there's a value
+    try {
+      new URL(val.startsWith('http') ? val : `https://${val}`);
+      return true;
+    } catch {
+      return false;
+    }
+  }, "URL inválido").optional().or(z.literal("")),
 });
 
 type Category = {
@@ -37,6 +46,13 @@ export const AddBusinessForm = ({ categories }: AddBusinessFormProps) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      // Add https:// to URL if it doesn't start with http:// or https://
+      const formattedUrl = values.url
+        ? values.url.startsWith('http') 
+          ? values.url 
+          : `https://${values.url}`
+        : null;
+
       const { error } = await supabase
         .from('businesses')
         .insert([
@@ -44,7 +60,7 @@ export const AddBusinessForm = ({ categories }: AddBusinessFormProps) => {
             name: values.name,
             phone: values.phone,
             category: values.category,
-            url: values.url || null,
+            url: formattedUrl,
           },
         ]);
 
@@ -125,7 +141,7 @@ export const AddBusinessForm = ({ categories }: AddBusinessFormProps) => {
             <FormItem>
               <FormLabel>Website ou Rede Social (opcional)</FormLabel>
               <FormControl>
-                <Input placeholder="https://..." {...field} />
+                <Input placeholder="exemplo.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

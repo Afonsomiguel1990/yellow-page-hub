@@ -26,6 +26,7 @@ const Index = () => {
       const { data, error } = await supabase
         .from('businesses')
         .select('*')
+        .order('is_premium', { ascending: false })
         .order('name');
       if (error) throw error;
       return data;
@@ -34,7 +35,9 @@ const Index = () => {
 
   const groupedBusinesses = categories.map(category => ({
     category: category.name,
-    businesses: businesses.filter(business => business.category === category.name)
+    businesses: businesses.filter(business => 
+      business.category === category.name || business.secondary_category === category.name
+    )
   })).filter(group => group.businesses.length > 0);
 
   return (
@@ -55,6 +58,10 @@ const Index = () => {
                   name={business.name}
                   phone={business.phone}
                   url={business.url}
+                  isPremium={business.is_premium}
+                  logoUrl={business.logo_url}
+                  bio={business.bio}
+                  containerColor={business.container_color}
                 />
               ))}
             </div>

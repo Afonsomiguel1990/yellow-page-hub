@@ -11,33 +11,55 @@ export type Database = {
     Tables: {
       businesses: {
         Row: {
+          bio: string | null
           category: string
+          container_color: string | null
           created_at: string
           id: string
+          is_premium: boolean | null
+          logo_url: string | null
           name: string
           phone: string
+          secondary_category: string | null
           url: string | null
         }
         Insert: {
+          bio?: string | null
           category: string
+          container_color?: string | null
           created_at?: string
           id?: string
+          is_premium?: boolean | null
+          logo_url?: string | null
           name: string
           phone: string
+          secondary_category?: string | null
           url?: string | null
         }
         Update: {
+          bio?: string | null
           category?: string
+          container_color?: string | null
           created_at?: string
           id?: string
+          is_premium?: boolean | null
+          logo_url?: string | null
           name?: string
           phone?: string
+          secondary_category?: string | null
           url?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "businesses_category_fkey"
             columns: ["category"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["name"]
+          },
+          {
+            foreignKeyName: "businesses_secondary_category_fkey"
+            columns: ["secondary_category"]
             isOneToOne: false
             referencedRelation: "categories"
             referencedColumns: ["name"]
