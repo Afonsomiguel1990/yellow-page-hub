@@ -5,10 +5,20 @@ import { AddBusinessForm } from "@/components/AddBusinessForm";
 import { Hero } from "@/components/Hero";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, LogIn, UserPlus, User } from "lucide-react";
+import { AuthDialog } from "@/components/AuthDialog";
 
 const Index = () => {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
@@ -35,6 +45,10 @@ const Index = () => {
     },
   });
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
+
   const groupedBusinesses = categories.map(category => ({
     category: category.name,
     businesses: businesses.filter(business => 
@@ -47,7 +61,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       <Hero />
 
       {/* Business Listings */}
@@ -76,15 +90,56 @@ const Index = () => {
         ))}
       </div>
 
-      {/* Add Contact Button */}
-      <Button 
-        className="fixed bottom-4 right-4 shadow-lg z-50"
-        size="lg"
-        onClick={() => setShowAddForm(true)}
-      >
-        <Plus className="mr-2" />
-        Adicionar Contacto
-      </Button>
+      {/* Bottom Navigation Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 flex justify-between items-center z-50">
+        <div className="flex gap-2">
+          {!session ? (
+            <>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowAuthDialog(true)}
+                className="flex items-center gap-2"
+              >
+                <LogIn className="w-4 h-4" />
+                Login
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowAuthDialog(true)}
+                className="flex items-center gap-2"
+              >
+                <UserPlus className="w-4 h-4" />
+                SignUp
+              </Button>
+            </>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleSignOut}
+              className="flex items-center gap-2"
+            >
+              <User className="w-4 h-4" />
+              Perfil
+            </Button>
+          )}
+        </div>
+        <Button 
+          size="sm"
+          onClick={() => session ? setShowAddForm(true) : setShowAuthDialog(true)}
+          className="flex items-center gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          Adicionar Contacto
+        </Button>
+      </div>
+
+      <AuthDialog 
+        open={showAuthDialog} 
+        onOpenChange={setShowAuthDialog} 
+      />
     </div>
   );
 };
