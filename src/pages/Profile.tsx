@@ -3,11 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { AddBusinessForm } from "@/components/AddBusinessForm";
 import { useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { PremiumDialog } from "@/components/PremiumDialog";
+import { BusinessCard } from "@/components/BusinessCard";
 
 const Profile = () => {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const { toast } = useToast();
 
   const { data: session } = useQuery({
@@ -79,56 +82,57 @@ const Profile = () => {
   }
 
   if (showAddForm) {
-    return <AddBusinessForm categories={categories} onCancel={() => setShowAddForm(false)} />;
+    return (
+      <AddBusinessForm 
+        categories={categories} 
+        onCancel={() => setShowAddForm(false)}
+      />
+    );
   }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">Meus Contactos</h1>
-      <Button onClick={() => setShowAddForm(true)} className="mb-8">
-        Adicionar Novo Contacto
-      </Button>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-bold">Meus Contactos</h1>
+        <Button onClick={() => setShowAddForm(true)}>
+          <Plus className="mr-2" />
+          Adicionar Novo Contacto
+        </Button>
+      </div>
 
       <div className="space-y-4">
         {userBusinesses.map((business) => (
           <div
             key={business.id}
-            className="p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow"
+            className="relative"
           >
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-semibold">{business.name}</h3>
-                <p className="text-sm text-gray-600">{business.phone}</p>
-                {business.url && (
-                  <a
-                    href={business.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:underline"
-                  >
-                    {business.url}
-                  </a>
-                )}
-                <p className="text-sm text-gray-600 mt-1">
-                  Categoria: {business.category}
-                  {business.secondary_category && ` / ${business.secondary_category}`}
-                </p>
-                {business.is_premium && (
-                  <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded mt-2">
-                    Premium
-                  </span>
-                )}
-              </div>
-              <div className="flex gap-2">
+            <BusinessCard
+              id={business.id}
+              name={business.name}
+              phone={business.phone}
+              url={business.url}
+              isPremium={business.is_premium}
+              logoUrl={business.logo_url}
+              bio={business.bio}
+              containerColor={business.container_color}
+            />
+            <div className="absolute top-2 right-2 flex gap-2">
+              {!business.is_premium && (
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                  onClick={() => handleDelete(business.id)}
+                  onClick={() => setShowPremiumDialog(true)}
                 >
-                  <Trash2 className="w-4 h-4" />
+                  Upgrade para Premium
                 </Button>
-              </div>
+              )}
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => handleDelete(business.id)}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
             </div>
           </div>
         ))}
@@ -139,6 +143,18 @@ const Profile = () => {
           </p>
         )}
       </div>
+
+      <PremiumDialog 
+        open={showPremiumDialog} 
+        onOpenChange={setShowPremiumDialog}
+        onSuccess={() => {
+          refetchBusinesses();
+          toast({
+            title: "Sucesso!",
+            description: "Seu plano foi atualizado com sucesso.",
+          });
+        }}
+      />
     </div>
   );
 };
