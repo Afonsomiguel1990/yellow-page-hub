@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Home, User, LogIn } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface BottomNavProps {
@@ -10,6 +10,14 @@ interface BottomNavProps {
 
 export const BottomNav = ({ onAddContact, onShowAuth }: BottomNavProps) => {
   const location = useLocation();
+  const queryClient = useQueryClient();
+
+  // Subscribe to auth changes
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+      queryClient.invalidateQueries({ queryKey: ['session'] });
+    }
+  });
 
   const { data: session } = useQuery({
     queryKey: ['session'],
@@ -20,6 +28,7 @@ export const BottomNav = ({ onAddContact, onShowAuth }: BottomNavProps) => {
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchOnReconnect: true,
+    staleTime: 0, // Consider the data immediately stale
   });
 
   return (

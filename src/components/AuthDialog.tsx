@@ -19,7 +19,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
         toast({
           title: "Login bem-sucedido",
           description: "Bem-vindo de volta!",
-          duration: 3000, // 3 seconds duration
+          duration: 2000, // Reduced to 2 seconds
         });
         onOpenChange(false);
       }
