@@ -3,7 +3,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface AuthDialogProps {
   open: boolean;
@@ -19,6 +19,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
         toast({
           title: "Login bem-sucedido",
           description: "Bem-vindo de volta!",
+          duration: 3000, // 3 seconds duration
         });
         onOpenChange(false);
       }

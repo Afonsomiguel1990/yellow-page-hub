@@ -17,6 +17,9 @@ export const BottomNav = ({ onAddContact, onShowAuth }: BottomNavProps) => {
       const { data: { session } } = await supabase.auth.getSession();
       return session;
     },
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
   });
 
   return (
