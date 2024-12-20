@@ -3,15 +3,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { AddBusinessForm } from "@/components/AddBusinessForm";
 import { useState } from "react";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, LogOut } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { PremiumDialog } from "@/components/PremiumDialog";
 import { BusinessCard } from "@/components/BusinessCard";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const { data: session } = useQuery({
     queryKey: ['session'],
@@ -72,6 +74,23 @@ const Profile = () => {
     }
   };
 
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao fazer logout.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Sucesso!",
+        description: "Logout efetuado com sucesso.",
+      });
+      navigate('/');
+    }
+  };
+
   if (!session) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
@@ -94,10 +113,16 @@ const Profile = () => {
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold">Meus Contactos</h1>
-        <Button onClick={() => setShowAddForm(true)}>
-          <Plus className="mr-2" />
-          Adicionar Novo Contacto
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowAddForm(true)}>
+            <Plus className="mr-2" />
+            Adicionar Novo Contacto
+          </Button>
+          <Button variant="outline" onClick={handleLogout}>
+            <LogOut className="mr-2" />
+            Sair
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-4">

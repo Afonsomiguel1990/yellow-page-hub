@@ -53,21 +53,18 @@ const Index = () => {
   })).filter(group => group.businesses.length > 0);
 
   if (showAddForm) {
-    return <AddBusinessForm 
-      categories={categories} 
-      onCancel={() => setShowAddForm(false)}
-    />;
+    return (
+      <AddBusinessForm 
+        categories={categories} 
+        onCancel={() => setShowAddForm(false)}
+      />
+    );
   }
 
   return (
     <div className="min-h-screen bg-background pb-20">
       <Hero />
       <BusinessList groupedBusinesses={groupedBusinesses} />
-      <BottomNav 
-        session={session}
-        onAddContact={() => session ? setShowAddForm(true) : setShowAuthDialog(true)}
-        onShowAuth={() => setShowAuthDialog(true)}
-      />
       <AuthDialog 
         open={showAuthDialog} 
         onOpenChange={setShowAuthDialog} 
