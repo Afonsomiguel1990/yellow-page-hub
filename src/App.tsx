@@ -30,7 +30,7 @@ function AppContent() {
         <Route path="/profile" element={<Profile />} />
       </Routes>
       <BottomNav 
-        onAddContact={() => session ? setShowAddForm(true) : setShowAuthDialog(true)}
+        onAddContact={() => setShowAddForm(true)}
         onShowAuth={() => setShowAuthDialog(true)}
       />
       <Toaster />
