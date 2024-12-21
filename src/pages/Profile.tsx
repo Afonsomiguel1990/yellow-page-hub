@@ -1,13 +1,12 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { AddBusinessForm } from "@/components/AddBusinessForm";
 import { useState } from "react";
-import { Pencil, Trash2, Plus, LogOut } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { PremiumDialog } from "@/components/PremiumDialog";
-import { BusinessCard } from "@/components/BusinessCard";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { AddBusinessForm } from "@/components/AddBusinessForm";
+import { PremiumDialog } from "@/components/PremiumDialog";
+import { ProfileHeader } from "@/components/profile/ProfileHeader";
+import { ProfileBusinessList } from "@/components/profile/BusinessList";
 
 const Profile = () => {
   const [showAddForm, setShowAddForm] = useState(false);
@@ -36,7 +35,7 @@ const Profile = () => {
     },
   });
 
-  const { data: userBusinesses = [], refetch: refetchBusinesses } = useQuery({
+  const { data: userBusinesses = [] } = useQuery({
     queryKey: ['userBusinesses'],
     queryFn: async () => {
       if (!session?.user?.id) return [];
@@ -70,9 +69,11 @@ const Profile = () => {
         return;
       }
 
-      // Invalidate and refetch queries
-      await queryClient.invalidateQueries({ queryKey: ['userBusinesses'] });
-      await queryClient.invalidateQueries({ queryKey: ['businesses'] });
+      // Invalidate queries to refresh the data
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['userBusinesses'] }),
+        queryClient.invalidateQueries({ queryKey: ['businesses'] })
+      ]);
       
       toast({
         title: "Sucesso!",
@@ -127,69 +128,22 @@ const Profile = () => {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Meus Contactos</h1>
-        <div className="flex gap-2">
-          <Button onClick={() => setShowAddForm(true)}>
-            <Plus className="mr-2" />
-            Adicionar Novo Contacto
-          </Button>
-          <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="mr-2" />
-            Sair
-          </Button>
-        </div>
-      </div>
+      <ProfileHeader
+        onAddContact={() => setShowAddForm(true)}
+        onLogout={handleLogout}
+      />
 
-      <div className="space-y-4">
-        {userBusinesses.map((business) => (
-          <div
-            key={business.id}
-            className="relative"
-          >
-            <BusinessCard
-              id={business.id}
-              name={business.name}
-              phone={business.phone}
-              url={business.url}
-              isPremium={business.is_premium}
-              logoUrl={business.logo_url}
-              bio={business.bio}
-              containerColor={business.container_color}
-            />
-            <div className="absolute top-2 right-2 flex gap-2">
-              {!business.is_premium && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowPremiumDialog(true)}
-                >
-                  Upgrade para Premium
-                </Button>
-              )}
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => handleDelete(business.id)}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        ))}
-
-        {userBusinesses.length === 0 && (
-          <p className="text-gray-600 text-center py-8">
-            Você ainda não tem nenhum contacto cadastrado.
-          </p>
-        )}
-      </div>
+      <ProfileBusinessList
+        businesses={userBusinesses}
+        onDelete={handleDelete}
+        onUpgradeToPremium={() => setShowPremiumDialog(true)}
+      />
 
       <PremiumDialog 
         open={showPremiumDialog} 
         onOpenChange={setShowPremiumDialog}
         onSuccess={() => {
-          refetchBusinesses();
+          queryClient.invalidateQueries({ queryKey: ['userBusinesses'] });
           toast({
             title: "Sucesso!",
             description: "Seu plano foi atualizado com sucesso.",
