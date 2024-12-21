@@ -19,7 +19,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
         toast({
           title: "Login bem-sucedido",
           description: "Bem-vindo de volta!",
-          duration: 2000, // Reduced to 2 seconds
+          duration: 2000,
         });
         onOpenChange(false);
       }
@@ -46,18 +46,29 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
                 sign_up: {
                   email_label: "Email",
                   password_label: "Palavra-passe",
-                  button_label: "Registar",
+                  button_label: "Criar conta",
+                  email_input_placeholder: "O seu email",
+                  password_input_placeholder: "A sua palavra-passe",
                   loading_button_label: "A criar conta...",
                   social_provider_text: "Entrar com {{provider}}",
-                  link_text: "Não tem conta? Registar",
+                  link_text: "Não tem conta? Criar conta",
+                  confirmation_text: "Verifique o seu email para confirmar o registo",
                 },
                 sign_in: {
                   email_label: "Email",
                   password_label: "Palavra-passe",
                   button_label: "Entrar",
+                  email_input_placeholder: "O seu email",
+                  password_input_placeholder: "A sua palavra-passe",
                   loading_button_label: "A entrar...",
                   social_provider_text: "Entrar com {{provider}}",
                   link_text: "Já tem conta? Entrar",
+                },
+                forgotten_password: {
+                  link_text: "Esqueceu a palavra-passe?",
+                  button_label: "Recuperar palavra-passe",
+                  loading_button_label: "A enviar email...",
+                  confirmation_text: "Verifique o seu email para recuperar a palavra-passe",
                 },
               },
             }}
