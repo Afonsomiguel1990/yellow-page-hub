@@ -8,18 +8,24 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
-  const { priceId } = await req.json()
-
-  const supabaseClient = createClient(
-    Deno.env.get('SUPABASE_URL') ?? '',
-    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-  )
-
   try {
+    const { priceId } = await req.json()
+
+    if (!priceId) {
+      throw new Error('Price ID is required')
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    )
+
+    // Get the user's email
     const authHeader = req.headers.get('Authorization')!
     const token = authHeader.replace('Bearer ', '')
     const { data } = await supabaseClient.auth.getUser(token)
@@ -34,6 +40,7 @@ serve(async (req) => {
       apiVersion: '2023-10-16',
     })
 
+    // Check if customer already exists
     const customers = await stripe.customers.list({
       email: email,
       limit: 1
@@ -42,6 +49,7 @@ serve(async (req) => {
     let customer_id = undefined
     if (customers.data.length > 0) {
       customer_id = customers.data[0].id
+      // Check if already subscribed
       const subscriptions = await stripe.subscriptions.list({
         customer: customers.data[0].id,
         status: 'active',
@@ -65,8 +73,8 @@ serve(async (req) => {
         },
       ],
       mode: 'subscription',
-      success_url: `${req.headers.get('origin')}/`,
-      cancel_url: `${req.headers.get('origin')}/`,
+      success_url: `${req.headers.get('origin')}/profile`,
+      cancel_url: `${req.headers.get('origin')}/profile`,
     })
 
     return new Response(
@@ -77,12 +85,12 @@ serve(async (req) => {
       }
     )
   } catch (error) {
-    console.error('Error creating payment session:', error)
+    console.error('Error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
+        status: 400,
       }
     )
   }
