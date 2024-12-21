@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { AddBusinessForm } from "@/components/AddBusinessForm";
@@ -14,6 +14,7 @@ const Profile = () => {
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: session } = useQuery({
     queryKey: ['session'],
@@ -69,7 +70,9 @@ const Profile = () => {
         return;
       }
 
-      await refetchBusinesses();
+      // Invalidate and refetch queries
+      await queryClient.invalidateQueries({ queryKey: ['userBusinesses'] });
+      await queryClient.invalidateQueries({ queryKey: ['businesses'] });
       
       toast({
         title: "Sucesso!",

@@ -6,6 +6,8 @@ import { useState } from "react";
 import { AuthDialog } from "@/components/AuthDialog";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { BusinessList } from "@/components/business/BusinessList";
+import { Button } from "@/components/ui/button";
+import { UserPlus } from "lucide-react";
 
 const Index = () => {
   const [showAddForm, setShowAddForm] = useState(false);
@@ -64,6 +66,17 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background pb-20">
       <Hero />
+      {!session && (
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <Button 
+            onClick={() => setShowAuthDialog(true)}
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <UserPlus className="w-4 h-4" />
+            Criar conta para adicionar contacto
+          </Button>
+        </div>
+      )}
       <BusinessList groupedBusinesses={groupedBusinesses} />
       <AuthDialog 
         open={showAuthDialog} 
