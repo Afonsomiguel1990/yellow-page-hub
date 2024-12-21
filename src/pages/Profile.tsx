@@ -55,21 +55,34 @@ const Profile = () => {
       const { error } = await supabase
         .from('businesses')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', session?.user?.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error deleting business:', error);
+        toast({
+          title: "Erro",
+          description: "Ocorreu um erro ao remover o contacto.",
+          variant: "destructive",
+          duration: 3000,
+        });
+        return;
+      }
 
+      await refetchBusinesses();
+      
       toast({
         title: "Sucesso!",
         description: "Contacto removido com sucesso.",
+        duration: 3000,
       });
-      refetchBusinesses();
     } catch (error) {
       console.error('Error deleting business:', error);
       toast({
         title: "Erro",
         description: "Ocorreu um erro ao remover o contacto.",
         variant: "destructive",
+        duration: 3000,
       });
     }
   };
